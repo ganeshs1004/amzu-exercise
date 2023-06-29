@@ -68,7 +68,17 @@ resource "google_compute_firewall" "web_app_fw_rule" {
 
   source_ranges = ["0.0.0.0/0"]
 }
+# Create firewall rule for ICMP (ping) traffic
+resource "google_compute_firewall" "icmp_fw_rule" {
+  name    = "icmp-fw-rule"
+  network = google_compute_network.network.self_link
 
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
 resource "google_compute_instance" "web_application" {
   name         = "web-application"
   machine_type = "e2-medium"
