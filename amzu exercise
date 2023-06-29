@@ -1,11 +1,16 @@
 Solution Steps:
 Step 1: Setting Up the GitHub Repository
+
         Created and set up the new github account. 
         Created a new repository on GitHubNamed "amzu-exercise" to store the Terraform code and related files.
-Step 2: Create a GCP project        
+
+Step 2: Create a GCP project
+
         Created a GCP project in my free tier GCP account.
         Project name: “amzu-exercise”
+
 step 3: Set Up Terraform Configuration
+
         Download the terraform and configure it on my local machine.
         Download the VS Code to work with terraform code.
         https://code.visualstudio.com/download
@@ -30,6 +35,38 @@ resource "google_compute_subnetwork" "subnet" {
   region        = "us-central1"
   network       = google_compute_network.network.name
   ip_cidr_range = "10.0.0.0/24"
+}
+
+# Create firewall rule for SSH access
+resource "google_compute_firewall" "ssh_fw_rule" {
+  name    = "ssh-fw-rule"
+  network = google_compute_network.network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+# Create a VPC network
+resource "google_compute_network" "vpc_network" {
+  name                    = "my-vpc-network"
+  auto_create_subnetworks = false
+}
+
+# Create firewall rule for port 8080
+resource "google_compute_firewall" "web_app_fw_rule" {
+  name    = "web-app-fw-rule"
+  network = google_compute_network.vpc_network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_instance" "web_application" {
@@ -109,14 +146,11 @@ output "public_ip_address" {
   value = google_compute_instance.web_application.network_interface[0].access_config[0].nat_ip
 }
 
+
 This Terraform code creates the three VM instances: web-application (with a public IP), web-service-1, and web-service-2. Each VM uses a Debian 10 image, has a network interface connected to the specified subnet, and executes a startup script to add user access to the VM.
 Step 5:
 To ensure that all VMs are accessible by only 2 users, we can utilize Google Cloud Platform's Identity and Access Management (IAM) capabilities. By adding the two users as members to the project's IAM and granting them the necessary roles or permissions, we can control their access to the VMs.
 For future scalability and to support additional web service VMs, we can use configuration YAML. We can create a separate YAML file, such as web-services.yaml, where we define the details of the web service VMs. This allows us to easily add more web service VMs in the future by modifying the YAML file and reapplying the Terraform configuration.
-
-
-
-
 
 
 
@@ -152,3 +186,18 @@ you anticipate the need for HTTPS in the future, you can make the necessary adju
 5. Update DNS records: Update your DNS records to point the domain name to the public IP address or load balancer's IP address associated with the web application VM.
 
 By following these steps, you can enable HTTPS for your web application in the future.
+
+I was getting error while ssh to vm 
+To resolve this i have made chnages in terraform code with below code
+# Create firewall rule for SSH access
+resource "google_compute_firewall" "ssh_fw_rule" {
+  name    = "ssh-fw-rule"
+  network = google_compute_network.network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
