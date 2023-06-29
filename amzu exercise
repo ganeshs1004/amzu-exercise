@@ -3,3 +3,5 @@ Create a GCP project in my free tier GCP account.
 Download the terraform and configure it on my local machine.
 Download the VS Code to work with terraform code.
        https://code.visualstudio.com/download
+Create and set up the new github account and create two file 
+Main.tf and amzu-exercise.
