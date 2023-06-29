@@ -1,7 +1,154 @@
-Create a GCP project in my free tier GCP account.
- Project name: “amzu-exercise”
-Download the terraform and configure it on my local machine.
-Download the VS Code to work with terraform code.
-       https://code.visualstudio.com/download
-Create and set up the new github account and create two file 
-Main.tf and amzu-exercise.
+Solution Steps:
+Step 1: Setting Up the GitHub Repository
+        Created and set up the new github account. 
+        Created a new repository on GitHubNamed "amzu-exercise" to store the Terraform code and related files.
+Step 2: Create a GCP project        
+        Created a GCP project in my free tier GCP account.
+        Project name: “amzu-exercise”
+step 3: Set Up Terraform Configuration
+        Download the terraform and configure it on my local machine.
+        Download the VS Code to work with terraform code.
+        https://code.visualstudio.com/download
+        Create a new directory on your local machine where you want to store the Terraform configuration files.
+        In that directory, create a new file named main.tf.
+        Copy and paste the following Terraform code into main.tf, which creates the VM instances with the desired names and configurations:
+
+# Provider Configuration
+provider "google" {
+  project = "amzu-exercise"
+  region  = "us-central1"
+}
+
+# Resources
+resource "google_compute_network" "network" {
+  name                    = "my-network"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "my-subnet"
+  region        = "us-central1"
+  network       = google_compute_network.network.name
+  ip_cidr_range = "10.0.0.0/24"
+}
+
+resource "google_compute_instance" "web_application" {
+  name         = "web-application"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-10"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet.self_link
+    access_config {
+      // Public IP configuration for web-application
+    }
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    # Add user access to VM
+    echo "user1@example.com" >> /opt/users.txt
+    echo "user2@example.com" >> /opt/users.txt
+  EOT
+}
+
+resource "google_compute_instance" "web_service_1" {
+  name         = "web-service-1"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-10"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet.self_link
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    # Add user access to VM
+    echo "user1@example.com" >> /opt/users.txt
+    echo "user2@example.com" >> /opt/users.txt
+  EOT
+}
+
+resource "google_compute_instance" "web_service_2" {
+  name         = "web-service-2"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-10"
+    }
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.subnet.self_link
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    # Add user access to VM
+    echo "user1@example.com" >> /opt/users.txt
+    echo "user2@example.com" >> /opt/users.txt
+  EOT
+}
+
+# Output
+output "public_ip_address" {
+  value = google_compute_instance.web_application.network_interface[0].access_config[0].nat_ip
+}
+
+This Terraform code creates the three VM instances: web-application (with a public IP), web-service-1, and web-service-2. Each VM uses a Debian 10 image, has a network interface connected to the specified subnet, and executes a startup script to add user access to the VM.
+Step 5:
+To ensure that all VMs are accessible by only 2 users, we can utilize Google Cloud Platform's Identity and Access Management (IAM) capabilities. By adding the two users as members to the project's IAM and granting them the necessary roles or permissions, we can control their access to the VMs.
+For future scalability and to support additional web service VMs, we can use configuration YAML. We can create a separate YAML file, such as web-services.yaml, where we define the details of the web service VMs. This allows us to easily add more web service VMs in the future by modifying the YAML file and reapplying the Terraform configuration.
+
+
+
+
+
+
+
+
+
+Here's an example of a YAML file (web-services.yaml) that can be used to define the web service VMs in your exercise:
+# web-services.yaml
+
+web_services:
+  - name: web-service-1
+    machine_type: e2-medium
+    zone: us-central1-a
+    private_ip: 10.0.0.2
+    tags:
+      - allow-8080
+
+  - name: web-service-2
+    machine_type: e2-medium
+    zone: us-central1-b
+    private_ip: 10.0.0.3
+    tags:
+      - allow-8080
+
+# Add more web service VMs as needed
+In this YAML file, we define a list of web service VMs under the web_services key. Each VM is specified with its name, machine_type, zone, private_ip, and tags. The private_ip field represents the private IP address assigned to the VM.
+You can extend this YAML file by adding more web service VMs with their respective configurations. For example, if you need to add web-service-3, you can add another entry under the web_services list with its unique properties.
+
+you anticipate the need for HTTPS in the future, you can make the necessary adjustments to your infrastructure.
+1. Acquire SSL/TLS certificates
+2. Update the web application VM: Once you have the SSL/TLS certificates, you need to update the web application VM (web-application) to enable HTTPS. This typically involves configuring the web server software (e.g., Nginx, Apache) to use the SSL/TLS certificates and configuring the appropriate HTTPS settings
+3. Update the network configuration: Modify the firewall rules and network configuration to allow incoming HTTPS traffic (port 443) to the web application VM. This ensures that the VM can receive HTTPS requests from clients.
+4. Consider load balancer or reverse proxy
+5. Update DNS records: Update your DNS records to point the domain name to the public IP address or load balancer's IP address associated with the web application VM.
+
+By following these steps, you can enable HTTPS for your web application in the future.
