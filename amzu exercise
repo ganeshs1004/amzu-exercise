@@ -183,8 +183,8 @@ web_services:
     private_ip: 10.0.0.3
     tags:
       - allow-8080
-
 # Add more web service VMs as needed
+
 In this YAML file, we define a list of web service VMs under the web_services key. Each VM is specified with its name, machine_type, zone, private_ip, and tags. The private_ip field represents the private IP address assigned to the VM.
 You can extend this YAML file by adding more web service VMs with their respective configurations. For example, if you need to add web-service-3, you can add another entry under the web_services list with its unique properties.
 
@@ -211,3 +211,57 @@ resource "google_compute_firewall" "ssh_fw_rule" {
 
   source_ranges = ["0.0.0.0/0"]
 }
+
+
+--> To support the future requirement of adding more web service VMs using configuration YAML in Google Cloud Platform (GCP), you can utilize deployment templates. Deployment templates allow you to define the desired state of your infrastructure in a declarative manner, making it easier to manage and scale your resources. Here's how you can achieve this:
+
+Create a YAML configuration file (e.g., vm-config.yaml) that describes the desired state of your VMs. The file might look like this:
+resources:
+  - name: vm1-web-app
+    type: compute.v1.instance
+    properties:
+      zone: <zone>
+      machineType: <machine-type>
+      networkInterfaces:
+        - network: <vpc-network>
+          accessConfigs:
+            - name: external-nat
+              type: ONE_TO_ONE_NAT
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your startup script for VM1
+
+  - name: vm2-web-service-1
+    type: compute.v1.instance
+    properties:
+      zone: <zone>
+      machineType: <machine-type>
+      networkInterfaces:
+        - network: <vpc-network>
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your startup script for VM2
+
+  - name: vm3-web-service-2
+    type: compute.v1.instance
+    properties:
+      zone: <zone>
+      machineType: <machine-type>
+      networkInterfaces:
+        - network: <vpc-network>
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your startup script for VM3
+
+--> Use the gcloud command-line tool to deploy the VMs from the configuration YAML file:
+gcloud deployment-manager deployments create my-vm-deployment --config web-config.yaml
+
