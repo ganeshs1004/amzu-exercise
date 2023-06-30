@@ -1,0 +1,45 @@
+resources:
+  - name: vm1-web-app
+    type: compute.v1.instance
+    properties:
+      zone: <zone>
+      machineType: <machine-type>
+      networkInterfaces:
+        - network: <vpc-network>
+          accessConfigs:
+            - name: external-nat
+              type: ONE_TO_ONE_NAT
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your startup script for VM1
+
+  - name: vm2-web-service-1
+    type: compute.v1.instance
+    properties:
+      zone: <zone>
+      machineType: <machine-type>
+      networkInterfaces:
+        - network: <vpc-network>
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your startup script for VM2
+
+  - name: vm3-web-service-2
+    type: compute.v1.instance
+    properties:
+      zone: <zone>
+      machineType: <machine-type>
+      networkInterfaces:
+        - network: <vpc-network>
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your startup script for VM3
