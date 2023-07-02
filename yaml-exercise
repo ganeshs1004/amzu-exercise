@@ -1,0 +1,72 @@
+To create the three VMs with the specified configuration using a YAML file in Google Cloud Platform (GCP), you can follow these steps:
+Step 1: Create a YAML configuration file (e.g., vm-config.yaml) and add the following contents:
+resources:
+  - name: web-application
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: n1-standard-1
+      privateNetworkIp: <vm1-private-ip>
+      networkInterfaces:
+        - network: default
+          accessConfigs:
+            - name: External NAT
+              type: ONE_TO_ONE_NAT
+              natIP: <vm1-public-ip>
+          networkIP: <vm1-private-ip>
+      serviceAccounts:
+        - email: default
+          scopes:
+            - cloud-platform
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your custom startup script for web-application VM
+
+  - name: web-service-1
+    type: compute.v1.instance
+    properties:
+      zone: <your-zone>
+      machineType: <your-machine-type>
+      privateNetworkIp: <vm2-private-ip>
+      networkInterfaces:
+        - network: default
+          networkIP: <vm2-private-ip>
+      serviceAccounts:
+        - email: default
+          scopes:
+            - cloud-platform
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your custom startup script for web-service-1 VM
+
+  - name: web-service-2
+    type: compute.v1.instance
+    properties:
+      zone: <your-zone>
+      machineType: <your-machine-type>
+      privateNetworkIp: <vm3-private-ip>
+      networkInterfaces:
+        - network: default
+          networkIP: <vm3-private-ip>
+      serviceAccounts:
+        - email: default
+          scopes:
+            - cloud-platform
+      metadata:
+        items:
+          - key: startup-script
+            value: |
+              #!/bin/bash
+              # Your custom startup script for web-service-2 VM
+
+Step 2: Deploy the VMs using the YAML configuration file:
+You can use the gcloud command-line tool to deploy the VMs from the YAML configuration file. Open a terminal or command prompt and execute the following command:
+**************gcloud deployment-manager deployments create my-vms --config=vm-config.yaml***************
+This command will create the three VMs as specified in the YAML file
+
