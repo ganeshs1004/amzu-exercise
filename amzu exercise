@@ -48,6 +48,8 @@ resource "google_compute_firewall" "ssh_fw_rule" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+
+  target_tags = ["ssh"]
 }
 
 # Create a VPC network
@@ -67,7 +69,10 @@ resource "google_compute_firewall" "web_app_fw_rule" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+
+  target_tags = ["web-app"]
 }
+
 # Create firewall rule for ICMP (ping) traffic
 resource "google_compute_firewall" "icmp_fw_rule" {
   name    = "icmp-fw-rule"
@@ -78,7 +83,10 @@ resource "google_compute_firewall" "icmp_fw_rule" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+
+  target_tags = ["icmp"]
 }
+
 resource "google_compute_instance" "web_application" {
   name         = "web-application"
   machine_type = "e2-medium"
@@ -103,6 +111,8 @@ resource "google_compute_instance" "web_application" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+
+  tags = ["web-app", "ssh"]
 }
 
 resource "google_compute_instance" "web_service_1" {
@@ -126,6 +136,8 @@ resource "google_compute_instance" "web_service_1" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+
+  tags = ["web-app", "ssh"]
 }
 
 resource "google_compute_instance" "web_service_2" {
@@ -149,6 +161,8 @@ resource "google_compute_instance" "web_service_2" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+
+  tags = ["web-app", "ssh"]
 }
 
 # Output
