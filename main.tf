@@ -91,7 +91,13 @@ resource "google_compute_instance" "web_application" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+ # Install Apache
+    apt-get update
+    apt-get install -y apache2
 
+    # Configure Apache
+    echo "<h1>Welcome to My Web Service</h1>" > /var/www/html/index.html
+  EOT
   tags = ["web-app", "ssh"]
 }
 
