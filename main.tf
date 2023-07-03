@@ -17,6 +17,56 @@ resource "google_compute_subnetwork" "subnet" {
   ip_cidr_range = "10.0.0.0/24"
 }
 
+# Create firewall rule for SSH access
+resource "google_compute_firewall" "ssh_fw_rule" {
+  name    = "ssh-fw-rule"
+  network = google_compute_network.network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+
+  target_tags = ["ssh"]
+}
+
+# Create a VPC network
+resource "google_compute_network" "vpc_network" {
+  name                    = "my-vpc-network"
+  auto_create_subnetworks = false
+}
+
+# Create firewall rule for port 8080
+resource "google_compute_firewall" "web_app_fw_rule" {
+  name    = "web-app-fw-rule"
+  network = google_compute_network.vpc_network.self_link
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+
+  target_tags = ["web-app"]
+}
+
+# Create firewall rule for ICMP (ping) traffic
+resource "google_compute_firewall" "icmp_fw_rule" {
+  name    = "icmp-fw-rule"
+  network = google_compute_network.network.self_link
+
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+
+  target_tags = ["icmp"]
+}
+
 resource "google_compute_instance" "web_application" {
   name         = "web-application"
   machine_type = "e2-medium"
@@ -41,6 +91,8 @@ resource "google_compute_instance" "web_application" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+
+  tags = ["web-app", "ssh"]
 }
 
 resource "google_compute_instance" "web_service_1" {
@@ -64,6 +116,8 @@ resource "google_compute_instance" "web_service_1" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+
+  tags = ["web-app", "ssh"]
 }
 
 resource "google_compute_instance" "web_service_2" {
@@ -87,6 +141,8 @@ resource "google_compute_instance" "web_service_2" {
     echo "user1@example.com" >> /opt/users.txt
     echo "user2@example.com" >> /opt/users.txt
   EOT
+
+  tags = ["web-app", "ssh"]
 }
 
 # Output
